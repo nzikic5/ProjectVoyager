@@ -93,20 +93,6 @@ public class UpdateOrbitalElements : MonoBehaviour {
 		TrueAnomaly += (1.25 * Mathf.Pow(Initial.ecc, 2)) * Mathf.Sin(2 * Initial.anom);
 		TrueAnomaly += ((13/12) * Mathf.Pow(Initial.ecc, 3)) * Mathf.Sin(3 * Initial.anom);
 
-		/* Calculate the final inclination after the maneuver */
-
-		// Calculate the difference in inclination
-		double DeltaI;
-		double Numerator = (double)DeltaV.magnitude * (1 + (Initial.ecc * Mathf.Cos(TrueAnomaly)));
-		double Denominator = 2 * Mathf.Sqrt(1 + Mathf.Pow(Initial.ecc, 2)) * Initial.n * Initial.axis * Mathf.Cos(Initial.arg + TrueAnomaly);
-		DeltaI = 2 * Mathf.Asin(Numerator/Denominator);
-
-		double FinalIncl = DeltaI + Initial.incl;
-
-		/* Calculate the final longitude (right ascension) of the ascending node */
-
-		// Calculate the magnitude of the initial velocity //
-
 		// Calculate the standard gravitational parameter
 		double Mu;
 		Mu = 6.67384e-11 * (Initial.mass + Initial.massFocus);
@@ -118,7 +104,7 @@ public class UpdateOrbitalElements : MonoBehaviour {
 		// Calculate the initial velocity in Perifocal Coordinates
 		Vector3 InitialVelocity;
 		double IVp = -1 * Mu * Mathf.Sin(TrueAnomaly) / h;
-		double IVq = (Initial.ecc + Mathf.Cin(TrueAnomaly)) * Mu / h;
+		double IVq = (Initial.ecc + Mathf.Cos(TrueAnomaly)) * Mu / h;
 		double IVw = 0;
 		InitialVelocity = new Vector3 ((float)IVp, (float)IVq, (float)IVw);
 
@@ -132,15 +118,15 @@ public class UpdateOrbitalElements : MonoBehaviour {
 		double ArgOfLatitude;
 		ArgOfLatitude = TrueAnomaly + Initial.arg;
 
-		// Calculate the difference between the intial and the final longitudes of ascending node
-		double DeltaOmega;
-		DeltaOmega = Mathf.Sin(ArgOfLatitude) * Mathf.Sin(AngleBtwnOrbits) / Mathf.Sin(FinalIncl);
-		DeltaOmega = Mathf.Asin(DeltaOmega);
+        // Initial inclination and longitude of ascending node are given, and solving a system of equations given by Behrad
+        // the inclination and longitude of ascending node after the application of DeltaV can be calculated.
 
-		double FinalAsc = DeltaOmega + Inital.asc;
+        double inclFinal = Mathf.Acos(cos(Initial.incl)*cos(AngleBtwnOrbits) - sin(Initial.incl)*sin(AngleBtwnOrbits)*cos(ArgOfLatitude) );
+        double FinalAsc = Mathf.Acos( (cos(AngleBtwnOrbits) - cos(Initial.incl)*cos(inclFinal) / (sin(Initial.incl)*sin(inclFinal)) ) + Initial.Asc;
 
 		// Because the maneuver is only in the normal/anti-normal direction,
 		// only the Inclination and Longitude of Ascending Node change
+        // This is done by setting the initial inclination and long. asc. to the final value calculated above
 		Initial.incl = FinalIncl;
 		Initial.asc = FinalAsc;
 
@@ -174,7 +160,7 @@ public class UpdateOrbitalElements : MonoBehaviour {
 		// Calculate the initial velocity in Perifocal Coordinates
 		Vector3 InitialVelocity;
 		double IVp = -1 * Mu * Mathf.Sin(TrueAnomaly) / h;
-		double IVq = (Initial.ecc + Mathf.Cin(TrueAnomaly)) * Mu / h;
+		double IVq = (Initial.ecc + Mathf.Cos(TrueAnomaly)) * Mu / h;
 		double IVw = 0;
 		InitialVelocity = new Vector3 ((float)IVp, (float)IVq, (float)IVw);
 
@@ -235,7 +221,7 @@ public class UpdateOrbitalElements : MonoBehaviour {
 		// Calculate the initial velocity in Perifocal Coordinates
 		Vector3 InitialVelocity;
 		double IVp = -1 * Mu * Mathf.Sin(TrueAnomaly) / h;
-		double IVq = (Initial.ecc + Mathf.Cin(TrueAnomaly)) * Mu / h;
+		double IVq = (Initial.ecc + Mathf.Cos(TrueAnomaly)) * Mu / h;
 		double IVw = 0;
 		InitialVelocity = new Vector3((float)IVp, (float)IVq, (float)IVw);
 
